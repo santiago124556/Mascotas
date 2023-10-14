@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Rescate de Mascotas</title>
+</head>
+<body>
+    <h1>Rescate de Mascotas</h1>
+    
+    <h2>Agregar una mascota:</h2>
+    <form action="agregarMascota.jsp" method="POST">
+        <label>Tipo de Mascota:</label>
+        <select name="tipoMascota">
+            <option value="Canino">Canino</option>
+            <option value="Felino">Felino</option>
+        </select><br/>
+        
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required/><br/>
+        
+        <label>Raza:</label>
+        <input type="text" name="raza" required/><br/>
+        
+        <label>Color:</label>
+        <input type="text" name="color" required/><br/>
+        
+        <label>Edad:</label>
+        <input type="number" name="edad" required/><br/>
+        
+        <label>Nivel de Entrenamiento (solo para los Caninos):</label>
+        <input type="number" name="nivelEntrenamiento" min="0" max="10"/><br/>
+        
+        <label>Libre de Toxoplasmosis (solo para los Felinos):</label>
+        <input type="checkbox" name="toxoplasmosis"/><br/>
+        
+        <input type="submit" value="Agregar"/>
+    </form>
+    
+    <h2>Mascotas Disponibles:</h2>
+    <table>
+        <tr>
+            <th>Tipo</th>
+            <th>Nombre</th>
+            <th>Raza</th>
+            <th>Color</th>
+            <th>Edad</th>
+            <th>Nivel de Entrenamiento</th>
+            <th>Libre de Toxoplasmosis</th>
+            <th>Retirar</th>
+        </tr>
+        <%
+
+            ArrayList<Mascota> mascotas = (ArrayList<Mascota>) session.getAttribute("mascotas");
+            if (mascotas != null) {
+                for (Mascota mascota : mascotas) {
+                    out.println("<tr>");
+                    out.println("<td>" + mascota.getTipo() + "</td>");
+                    out.println("<td>" + mascota.getNombre() + "</td>");
+                    out.println("<td>" + mascota.getRaza() + "</td>");
+                    out.println("<td>" + mascota.getColor() + "</td>");
+                    out.println("<td>" + mascota.getEdad() + "</td>");
+                    if (mascota instanceof Canino) {
+                        out.println("<td>" + ((Canino) mascota).getNivelEntrenamiento() + "</td>");
+                    } else if (mascota instanceof Felino) {
+                        out.println("<td></td>");
+                        out.println("<td>" + ((Felino) mascota).isLibreToxoplasmosis() + "</td>");
+                    }
+                    out.println("<td><a href='WEB-INF/retirarMascota.jsp?nombre=" + mascota.getNombre() + "'>Retirar</a></td>");
+                    out.println("</tr>");
+                }
+            }
+        %>
+    </table>
+    
+    <h2>Estadísticas:</h2>
+    <%
+        double edadPromedio = 0;
+        int totalFelinos = 0;
+        int totalCaninos = 0;
+        int totalMascotas = 0;
+        if (mascotas != null) {
+            totalMascotas = mascotas.size();
+            for (Mascota mascota : mascotas) {
+                edadPromedio += mascota.getEdad();
+                if (mascota instanceof Canino) {
+                    totalCaninos++;
+                } else if (mascota instanceof Felino) {
+                    totalFelinos++;
+                }
+            }
+            if (totalMascotas > 0) {
+                edadPromedio /= totalMascotas;
+            }
+        }
+        out.println("<p>Edad Promedio de las Mascotas: " + edadPromedio + "</p>");
+        out.println("<p>Total de Felinos: " + totalFelinos + "</p>");
+        out.println("<p>Total de Caninos: " + totalCaninos + "</p>");
+        out.println("<p>Total de Mascotas: " + totalMascotas + "</p>");
+    %>
+</body>
+</html>
